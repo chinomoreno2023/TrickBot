@@ -19,6 +19,7 @@ public class Bot extends TelegramLongPollingBot {
     private int step = 0;
     private long chatId;
     private int messageId;
+    private String userName;
 
     @Value("${bot.username}")
     private String botUsername;
@@ -39,13 +40,11 @@ public class Bot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
-            messageSender.addMessageId(update.getMessage().getMessageId());
             long chatId = update.getMessage().getChatId();
-            String userName = update.getMessage().getFrom().getFirstName();
+            userName = update.getMessage().getFrom().getFirstName();
             log.info("chat ID: {}, user name: {}", chatId, userName);
 
             if (update.getMessage().getText().equalsIgnoreCase("/start")) {
-                messageSender.deleteMessages(chatId);
                 messageSender.sendWelcomeMessage(chatId, userName);
             }
         }
@@ -55,7 +54,6 @@ public class Bot extends TelegramLongPollingBot {
             log.info("chat ID: {}, callback data: {}", chatId, callbackData);
 
             if (callbackData.equals("start_trick")) {
-                messageSender.deleteMessages(chatId);
                 startTrick(chatId);
             }
             else {
@@ -72,22 +70,18 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     private void performTrick() {
-        messageSender.addMessageId(messageSender.sendTextMessage(chatId, "👇 СТОПКА 1 👇").getMessageId());
-        List<Message> pile1Messages = messageSender.sendMediaGroup(chatId, deckManager.getPile1());
-        messageSender.addMessageId(pile1Messages.stream().map(Message::getMessageId).toList());
+        messageSender.sendTextMessage(chatId, "👇 СТОПКА 1 👇");
+        messageSender.sendMediaGroup(chatId, deckManager.getPile1());
 
-        messageSender.addMessageId(messageSender.sendTextMessage(chatId, "👇 СТОПКА 2 👇").getMessageId());
-        List<Message> pile2Messages = messageSender.sendMediaGroup(chatId, deckManager.getPile2());
-        messageSender.addMessageId(pile2Messages.stream().map(Message::getMessageId).toList());
+        messageSender.sendTextMessage(chatId, "👇 СТОПКА 2 👇");
+        messageSender.sendMediaGroup(chatId, deckManager.getPile2());
 
-        messageSender.addMessageId(messageSender.sendTextMessage(chatId, "👇 СТОПКА 3 👇").getMessageId());
-        List<Message> pile3Messages = messageSender.sendMediaGroup(chatId, deckManager.getPile3());
-        messageSender.addMessageId(pile3Messages.stream().map(Message::getMessageId).toList());
+        messageSender.sendTextMessage(chatId, "👇 СТОПКА 3 👇");
+        messageSender.sendMediaGroup(chatId, deckManager.getPile3());
 
         InlineKeyboardMarkup keyboardMarkup = messageSender.createInlineKeyboard();
         Message message = messageSender.sendMessageWithKeyboard(
                 chatId, "В какой стопке компания, которую вы загадали?", keyboardMarkup);
-        messageSender.addMessageId(message.getMessageId());
         messageId = message.getMessageId();
     }
 
@@ -98,24 +92,18 @@ public class Bot extends TelegramLongPollingBot {
         log.info("Chosen pile: {}, Step: {}", chosenPile, step);
 
         if (step < 3) {
-            messageSender.deleteMessages(chatId);
             performTrick();
         }
         else {
-            messageSender.deleteMessages(chatId);
             showEleventhCard();
+            messageSender.sendWelcomeMessage(chatId, userName);
         }
     }
 
     private void showEleventhCard() {
         String cardToShow = deckManager.getSelectedCard();
         log.info("Card to show: {}", cardToShow);
-        messageSender.addMessageId(
-                messageSender.sendPhoto(
-                        chatId,
-                        cardToShow,
-                        "Компания, которую вы загадали\uD83D\uDC46")
-                        .getMessageId());
+        messageSender.sendPhoto(chatId, cardToShow,"Компания, которую вы загадали\uD83D\uDC46");
     }
 
 }

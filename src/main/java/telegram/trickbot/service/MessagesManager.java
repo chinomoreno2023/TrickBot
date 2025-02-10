@@ -28,22 +28,12 @@ public class MessagesManager {
             "Приветствую вас, %s! Нажмите на кнопку чтобы начать. " +
             "Из появившегося списка компаний загадайте одну. " +
                     "Далее три раза подряд укажите в какой стопке она находится.";
-    private final List<Integer> botMessageIds;
 
     public MessagesManager(TelegramLongPollingBot bot) {
-        this.bot = bot;
-        this.botMessageIds = new ArrayList<>();
+        this.bot = bot;;
     }
 
-    public void addMessageId(int messageId) {
-        botMessageIds.add(messageId);
-    }
-
-    public void addMessageId(List<Integer> messageIds) {
-        botMessageIds.addAll(messageIds);
-    }
-
-    public Message sendWelcomeMessage(long chatId, String userName) {
+    public void sendWelcomeMessage(long chatId, String userName) {
         String text = String.format(WELCOME_MESSAGE, userName);
 
         InlineKeyboardMarkup keyboard = InlineKeyboardMarkup.builder()
@@ -54,7 +44,7 @@ public class MessagesManager {
                                 .build()))
                 .build();
         try {
-            Message message = bot.execute(SendMessage.builder()
+            bot.execute(SendMessage.builder()
                     .chatId(chatId)
                     .text(text)
                     .parseMode("Markdown")
@@ -62,18 +52,15 @@ public class MessagesManager {
                     .disableWebPagePreview(true)
                     .build()
             );
-            return message;
         }
         catch (TelegramApiException e) {
             log.error("Error sending welcome message: {}", e.getMessage());
-            return null;
         }
     }
 
-    public Message sendTextMessage(long chatId, String text) {
-        Message message = null;
+    public void sendTextMessage(long chatId, String text) {
         try {
-            message = bot.execute(SendMessage.builder()
+            bot.execute(SendMessage.builder()
                     .chatId(chatId)
                     .text(text)
                     .parseMode("Markdown")
@@ -82,35 +69,30 @@ public class MessagesManager {
         catch (TelegramApiException e) {
             log.error("Error sending text message: {}", e.getMessage());
         }
-
-        return message;
     }
 
-    public List<Message> sendMediaGroup(long chatId, List<String> pile) {
+    public void sendMediaGroup(long chatId, List<String> pile) {
         List<InputMedia> mediaGroup = new ArrayList<>();
         pile.forEach(photoPath -> {
             InputMediaPhoto photo = new InputMediaPhoto();
             photo.setMedia(new InputFile(new File(photoPath)).getNewMediaFile(), photoPath);
             mediaGroup.add(photo);
         });
-        List<Message> messages;
+
         try {
-            messages = bot.execute(SendMediaGroup.builder()
+            bot.execute(SendMediaGroup.builder()
                     .chatId(chatId)
                     .medias(mediaGroup)
                     .build());
         }
         catch (TelegramApiException e) {
             log.error("Error sending media group: {}", e.getMessage());
-            return Collections.emptyList();
         }
-        return messages;
     }
 
-    public Message sendPhoto(long chatId, String photoPath, String caption) {
-        Message message = null;
+    public void sendPhoto(long chatId, String photoPath, String caption) {
         try {
-            message = bot.execute(SendPhoto.builder()
+            bot.execute(SendPhoto.builder()
                     .chatId(chatId)
                     .photo(new InputFile(new File(photoPath)))
                     .caption(caption)
@@ -119,7 +101,6 @@ public class MessagesManager {
         catch (TelegramApiException e) {
             log.error("Error sending photo: {}", e.getMessage());
         }
-        return message;
     }
 
     public InlineKeyboardMarkup createInlineKeyboard() {
@@ -147,20 +128,6 @@ public class MessagesManager {
             log.error("Error sending message with keyboard: {}", e.getMessage());
             return null;
         }
-    }
-
-    public void deleteMessages(long chatId) {
-        botMessageIds.forEach(messageId -> {
-            try {
-                bot.execute(DeleteMessage.builder()
-                        .chatId(chatId)
-                        .messageId(messageId)
-                        .build());
-            }
-            catch (TelegramApiException e) {
-                log.error("Error deleting message {}: {}", messageId, e.getMessage());
-            }
-        });
     }
 
 }
