@@ -1,7 +1,6 @@
 package telegram.trickbot.bot;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -10,9 +9,9 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import telegram.trickbot.service.DeckManager;
 import telegram.trickbot.service.MessagesManager;
-import java.util.List;
 
 @Component
+@Slf4j
 public class Bot extends TelegramLongPollingBot {
     private final DeckManager deckManager;
     private final MessagesManager messageSender;
@@ -23,8 +22,6 @@ public class Bot extends TelegramLongPollingBot {
 
     @Value("${bot.username}")
     private String botUsername;
-
-    private static final Logger log = LoggerFactory.getLogger(Bot.class);
 
     public Bot(@Value("${bot.token}") String botToken) {
         super(botToken);
