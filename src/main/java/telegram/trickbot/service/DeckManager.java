@@ -15,8 +15,7 @@ public class DeckManager {
     private static final int FOURTEENTH_CARD = 14;
     private static final int SELECTED_CARD = 10;
     private List<String> deck;
-//    private static final String PICTURES_PATH = "C:\\Users\\Administrator\\Desktop\\TrickBot\\images\\";
-    private static final String PICTURES_PATH = "src/main/resources/static/";
+    private static final String PICTURES_PATH = "C:\\Users\\Administrator\\Desktop\\TrickBot\\images\\";
     private static final String PICTURES_EXTENSION = ".png";
 
     public DeckManager() {
