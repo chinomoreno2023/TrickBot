@@ -1,13 +1,13 @@
 package telegram.trickbot.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
+@Slf4j
 public class DeckManager {
     private static final int DECK_SIZE = 21;
     private static final int PILE_SIZE = 7;
@@ -17,7 +17,6 @@ public class DeckManager {
     private List<String> deck;
     private static final String PICTURES_PATH = "C:\\Users\\Administrator\\Desktop\\TrickBot\\images\\";
     private static final String PICTURES_EXTENSION = ".png";
-    private static final Logger log = LoggerFactory.getLogger(DeckManager.class);
 
     public DeckManager() {
         initializeDeck();
