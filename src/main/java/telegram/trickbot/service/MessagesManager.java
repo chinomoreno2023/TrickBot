@@ -23,11 +23,11 @@ public class MessagesManager {
     private final TelegramLongPollingBot bot;
     private static final String WELCOME_MESSAGE =
             "Приветствую вас, %s! Нажмите на кнопку чтобы начать. " +
-            "Из появившегося списка компаний загадайте одну. " +
+                    "Из появившегося списка компаний загадайте одну. " +
                     "Далее три раза подряд укажите в какой стопке она находится.";
 
     public MessagesManager(TelegramLongPollingBot bot) {
-        this.bot = bot;;
+        this.bot = bot;
     }
 
     public void sendWelcomeMessage(long chatId, String userName) {
@@ -113,9 +113,9 @@ public class MessagesManager {
         return keyboardMarkup;
     }
 
-    public Message sendMessageWithKeyboard(long chatId, String text, InlineKeyboardMarkup keyboardMarkup) {
+    public void sendMessageWithKeyboard(long chatId, String text, InlineKeyboardMarkup keyboardMarkup) {
         try {
-            return bot.execute(SendMessage.builder()
+            bot.execute(SendMessage.builder()
                     .chatId(chatId)
                     .text(text)
                     .replyMarkup(keyboardMarkup)
@@ -123,7 +123,6 @@ public class MessagesManager {
         }
         catch (TelegramApiException e) {
             log.error("Error sending message with keyboard: {}", e.getMessage());
-            return null;
         }
     }
 

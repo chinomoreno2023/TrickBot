@@ -1,11 +1,11 @@
 package telegram.trickbot.bot;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import telegram.trickbot.service.DeckManager;
 import telegram.trickbot.service.MessagesManager;
@@ -17,15 +17,15 @@ public class Bot extends TelegramLongPollingBot {
     private final MessagesManager messageSender;
     private int step = 0;
     private long chatId;
-    private int messageId;
     private String userName;
 
     @Value("${bot.username}")
     private String botUsername;
 
-    public Bot(@Value("${bot.token}") String botToken) {
+    @Autowired
+    public Bot(@Value("${bot.token}") String botToken, DeckManager deckManager) {
         super(botToken);
-        this.deckManager = new DeckManager();
+        this.deckManager = deckManager;
         this.messageSender = new MessagesManager(this);
     }
 
@@ -77,9 +77,8 @@ public class Bot extends TelegramLongPollingBot {
         messageSender.sendMediaGroup(chatId, deckManager.getPile3());
 
         InlineKeyboardMarkup keyboardMarkup = messageSender.createInlineKeyboard();
-        Message message = messageSender.sendMessageWithKeyboard(
+        messageSender.sendMessageWithKeyboard(
                 chatId, "В какой стопке компания, которую вы загадали?", keyboardMarkup);
-        messageId = message.getMessageId();
     }
 
     private void handleButtonPress(String data) {

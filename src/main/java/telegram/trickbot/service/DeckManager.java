@@ -1,6 +1,8 @@
 package telegram.trickbot.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -8,6 +10,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 @Slf4j
+@Component
 public class DeckManager {
     private static final int DECK_SIZE = 21;
     private static final int PILE_SIZE = 7;
@@ -15,16 +18,19 @@ public class DeckManager {
     private static final int FOURTEENTH_CARD = 14;
     private static final int SELECTED_CARD = 10;
     private List<String> deck;
-    private static final String PICTURES_PATH = "C:\\Users\\Administrator\\Desktop\\TrickBot\\images\\";
-    private static final String PICTURES_EXTENSION = ".png";
+    private final String picturesPath;
+    private final String picturesExtension;
 
-    public DeckManager() {
+    public DeckManager(@Value("${pictures.path}") String picturesPath,
+                       @Value("${pictures.extension}") String picturesExtension) {
+        this.picturesPath = picturesPath;
+        this.picturesExtension = picturesExtension;
         initializeDeck();
     }
 
     private void initializeDeck() {
         deck = new ArrayList<>();
-        IntStream.rangeClosed(1, DECK_SIZE).forEach(i -> deck.add(PICTURES_PATH + i + PICTURES_EXTENSION));
+        IntStream.rangeClosed(1, DECK_SIZE).forEach(i -> deck.add(picturesPath + i + picturesExtension));
         log.info("Deck initialized: {}", deck);
         shuffleDeck();
     }
@@ -75,16 +81,18 @@ public class DeckManager {
                 newDeck.addAll(pile3);
                 newDeck.addAll(pile2);
                 break;
+            default:
+                log.error("Invalid chosen pile: {}", chosenPile);
         }
 
         Arrays.asList(pile1, pile2, pile3).forEach(List::clear);
 
         IntStream.range(FIRST_CARD, PILE_SIZE)
-                 .forEach(j -> {
-            pile1.add(newDeck.get(j * 3));
-            pile2.add(newDeck.get(j * 3 + 1));
-            pile3.add(newDeck.get(j * 3 + 2));
-        });
+                .forEach(j -> {
+                    pile1.add(newDeck.get(j * 3));
+                    pile2.add(newDeck.get(j * 3 + 1));
+                    pile3.add(newDeck.get(j * 3 + 2));
+                });
 
         deck.clear();
         deck.addAll(pile1);
