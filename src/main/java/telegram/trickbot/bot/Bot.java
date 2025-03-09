@@ -1,5 +1,6 @@
 package telegram.trickbot.bot;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -69,9 +70,11 @@ public class Bot extends TelegramLongPollingBot {
     private void performTrick() {
         messageSender.sendTextMessage(chatId, "👇 СТОПКА 1 👇");
         messageSender.sendMediaGroup(chatId, deckManager.getPile1());
+        sleep(500);
 
         messageSender.sendTextMessage(chatId, "👇 СТОПКА 2 👇");
         messageSender.sendMediaGroup(chatId, deckManager.getPile2());
+        sleep(500);
 
         messageSender.sendTextMessage(chatId, "👇 СТОПКА 3 👇");
         messageSender.sendMediaGroup(chatId, deckManager.getPile3());
@@ -92,6 +95,7 @@ public class Bot extends TelegramLongPollingBot {
         }
         else {
             showEleventhCard();
+            sleep(1000);
             messageSender.sendWelcomeMessage(chatId, userName);
         }
     }
@@ -100,6 +104,16 @@ public class Bot extends TelegramLongPollingBot {
         String cardToShow = deckManager.getSelectedCard();
         log.info("Card to show: {}", cardToShow);
         messageSender.sendPhoto(chatId, cardToShow,"Компания, которую вы загадали\uD83D\uDC46");
+    }
+
+    private void sleep(int delay) {
+        try {
+            Thread.sleep(delay);
+        }
+        catch (InterruptedException e) {
+            log.error("Error sleeping: {}", e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
 }
